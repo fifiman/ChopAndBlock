@@ -1,5 +1,6 @@
 import asynchat.async_chat
 import cPickle as pickle
+import logging
 
 
 class ChannelProtocol(asynchat.async_chat):
@@ -53,6 +54,20 @@ class ChannelProtocol(asynchat.async_chat):
                 self.set_terminator(int(dataLength))
             else:
                 self.process_command(command)
+
+    def send_command(self, command, data=None):
+        if ChannelProtocol.COMMAND_SEPARATOR not in command:
+            command += ChannelProtocol.COMMAND_SEPARATOR
+
+        if data is not None:
+            pickledData = pickle.dumps(data)
+            command += str(len(pickledData))
+
+            logging.debug("Sending command with data: %s." % command)
+            self.push(command + ChannelProtocol.DEFAULT_TERMINATOR + pickledData)
+        else:
+            logging.debug("Sending command: %s." % command)
+            self.push(command + ChannelProtocol.DEFAULT_TERMINATOR)
 
     def process_command(self, command, data=None):
         commands = {}
