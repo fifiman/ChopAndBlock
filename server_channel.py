@@ -19,7 +19,7 @@ class ServerChannel(ChannelProtocol):
         ]
 
         for command, function in commands_and_functions:
-            if function is not None:
+            if function is not None: # Collect function does not have to exist.
                 self.send_function(command, function)
 
     def send_function(self, command, func):

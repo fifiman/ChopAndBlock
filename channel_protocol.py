@@ -1,4 +1,4 @@
-import asynchat.async_chat
+import asynchat
 import cPickle as pickle
 import logging
 
@@ -22,7 +22,7 @@ class ChannelProtocol(asynchat.async_chat):
 
     def __init__(self, connection=None, socket_map=None):
 
-        asynchat.async_chat.__init__(sock=connection, map=socket_map)
+        asynchat.async_chat.__init__(self, sock=connection, map=socket_map)
 
         self.set_terminator(ChannelProtocol.DEFAULT_TERMINATOR)
 
