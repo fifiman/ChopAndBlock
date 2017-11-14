@@ -70,9 +70,13 @@ class ChannelProtocol(asynchat.async_chat):
             self.push(command + ChannelProtocol.DEFAULT_TERMINATOR)
 
     def process_command(self, command, data=None):
-        commands = {}
+        commands = {"disconnect" : lambda x, y : self.handle_close()}
 
         if command in commands:
-            pass
+            commands[command](command, data)
         else:
-            raise NotImplementedError("This command does not exist.")
+            logging.error("Command does not exist: %s." % command)
+            raise NotImplementedError("This command does not exist: %s." % command)
+
+    def handle_close(self):
+        self.close()

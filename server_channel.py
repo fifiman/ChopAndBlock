@@ -10,6 +10,31 @@ class ServerChannel(ChannelProtocol):
         self.parentServer = parentServer
 
         self.send_mapreduce_functions()
+        self.start_new_task()
+
+    def start_new_task(self):
+        command, data = self.parentServer.task_manager.get_next_task()
+
+        if command is not None:
+            self.send_command(command, data)
+
+    def process_command(self, command, data=None):
+        commands = {"map_done" : self.map_done,
+                    "reduce_done" : self.reduce_done
+        }
+
+        if command in commands:
+            commands[command](command, data)
+        else:
+            ChannelProtocol.process_command(self, command, data)
+
+    def map_done(self, command, data):
+        self.parentServer.task_manager.map_done(data)
+        self.start_new_task()
+
+    def reduce_done(self, command, data):
+        self.parentServer.task_manager.reduce_done(data)
+        self.start_new_task()
 
     def send_mapreduce_functions(self):
         commands_and_functions = [

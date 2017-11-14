@@ -11,9 +11,9 @@ class Client(ChannelProtocol):
     def __init__(self):
         ChannelProtocol.__init__(self)
 
-        self.map = None
-        self.reduce = None
-        self.collect = None
+        self.map_fn = None
+        self.reduce_fn = None
+        self.collect_fn = None
 
     def connect_to_server(self, serverAddress, serverPort):
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,29 +29,53 @@ class Client(ChannelProtocol):
         commands = {
             "set_map" : self.set_map,
             "set_reduce" : self.set_reduce,
-            "set_collect" : self.set_collect
+            "set_collect" : self.set_collect,
+            "map" : self.map,
+            "reduce" : self.reduce
         }
 
         if command in commands:
             commands[command](command, data)
         else:
-            ChannelProtocol.process_command(command, data)
+            ChannelProtocol.process_command(self, command, data)
+
+    def map(self, command, data):
+        logging.debug("Mapping %s." % data[0])
+        results = {}
+
+        for k, v in self.map_fn(data[0], data[1]):
+            if k not in results:
+                results[k] = []
+
+            results[k].append(v)
+
+        self.send_command("map_done", (data[0], results))
+
+    def reduce(self, command, data):
+        logging.debug("Reducing %s." % data[0])
+        results = self.reduce_fn(data[0], data[1])
+
+        self.send_command("reduce_done", (data[0], results))
 
     def set_map(self, command, data):
         map_code = marshal.loads(data)
-        self.map = types.FunctionType(map_code, globals(), "map")
+        self.map_fn = types.FunctionType(map_code, globals(), "map")
 
         logging.debug("Client map function set.")
 
     def set_reduce(self, command, data):
         reduce_code = marshal.loads(data)
-        self.reduce = types.FunctionType(reduce_code, globals(), "reduce")
+        self.reduce_fn = types.FunctionType(reduce_code, globals(), "reduce")
 
         logging.debug("Client reduce function set.")
 
     def set_collect(self, command, data):
         collect_code = marshal.loads(data)
-        self.collect = types.FunctionType(collect_code, globals(), "collect")
+        self.collect_fn = types.FunctionType(collect_code, globals(), "collect")
 
         logging.debug("Client collect function set.")
+
+    def handle_close(self):
+        logging.info("Client disconnecting.")
+        self.close()
 
