@@ -9,7 +9,7 @@ from channel_protocol import ChannelProtocol
 
 class Client(ChannelProtocol):
     """
-    Client connects to server. Which immediately receives MapReduce functions to be used for current job. After
+    Client connects to server. After which immediately receives MapReduce functions to be used for current job. After
     functions have been loaded, client will process multiple independent map/reduce jobs; sending results back
     to the server every time.
 

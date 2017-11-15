@@ -2,20 +2,20 @@ import asyncore
 import logging
 import random
 import socket
-
 from server_channel import ServerChannel
 
 
 class Server(asyncore.dispatcher, object):
-
     DEFAULT_PORT = 12345
 
     def __init__(self):
-
+        """
+        Initialize Server class and parent class.
+        """
         self.socket_map = {}
         asyncore.dispatcher.__init__(self, map=self.socket_map)
 
-        # MapReduce Functions
+        # Set MapReduce functions and data members to None so they can be checked for later on.
         self.map = None
         self.reduce = None
         self.collect = None
@@ -24,7 +24,15 @@ class Server(asyncore.dispatcher, object):
         self.task_manager = None
 
     def run_server(self, port=DEFAULT_PORT):
+        """
+        Run server and listen for connections, if it contains the required data.
 
+        Args:
+            port (int): Port number for server to be started on.
+
+        Returns:
+            None
+        """
         if self.check_server_prerequisites():
             self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
             self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -42,17 +50,34 @@ class Server(asyncore.dispatcher, object):
             logging.warning("Server does not contain all functions and data necessary for MapReduce.")
 
     def handle_accept(self):
+        """
+        Accept connection request and add new server channel to socket map.
+
+        Returns:
+            None
+        """
         connection, address = self.accept()
         ServerChannel(connection, self.socket_map, self)
 
         logging.debug("Server accepted client from address: (%s, %s)." %(address[0], address[1]))
 
     def handle_close(self):
+        """
+        Shut server down.
+
+        Returns:
+            None
+        """
         logging.info("Server shutting down.")
         self.close()
 
     def check_server_prerequisites(self):
+        """
+        Check that required functions and data exist for MapReduce.
 
+        Returns:
+            Bool whether server state fulfills requirements.
+        """
         if self.map is None:
             return False
         if self.reduce is None:
