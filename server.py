@@ -49,6 +49,8 @@ class Server(asyncore.dispatcher, object):
         else:
             logging.warning("Server does not contain all functions and data necessary for MapReduce.")
 
+            return None
+
     def handle_accept(self):
         """
         Accept connection request and add new server channel to socket map.
@@ -97,7 +99,7 @@ class Server(asyncore.dispatcher, object):
         self.task_manager = TaskManager(self.__data, self)
 
 
-class TaskManager():
+class TaskManager(object):
 
     START = 0
     MAPPING = 1
@@ -111,6 +113,13 @@ class TaskManager():
 
         self.state = TaskManager.START
         self.results = None
+
+        self.working_maps = {}
+        self.map_iterator = None
+        self.map_results = {}
+
+        self.working_reduces = {}
+        self.reduce_iter = None
 
     def get_next_task(self):
 
@@ -126,10 +135,10 @@ class TaskManager():
                 map_key, map_data = self.map_iterator.next()
                 self.working_maps[map_key] = map_data
 
-                return ("map", (map_key, map_data))
+                return "map", (map_key, map_data)
             except StopIteration:
                 if len(self.working_maps) > 0:
-                    return ("map", random.choice(self.working_maps.items()))
+                    return "map", random.choice(self.working_maps.items())
 
                 self.state = TaskManager.REDUCING
 
@@ -142,17 +151,16 @@ class TaskManager():
                 reduce_key, reduce_data = self.reduce_iter.next()
                 self.working_reduces[reduce_key] = reduce_data
 
-                return ("reduce", (reduce_key, reduce_data))
+                return "reduce", (reduce_key, reduce_data)
             except StopIteration:
                 if len(self.working_reduces) > 0:
-                    return ("reduce", random.choice(self.working_reduces.items()))
+                    return "reduce", random.choice(self.working_reduces.items())
 
                 self.state = TaskManager.DONE
 
         if self.state == TaskManager.DONE:
             self.parent_server.handle_close()
-            return ("disconnect", None)
-
+            return "disconnect", None
 
     def map_done(self, data):
         if data[0] not in self.working_maps:

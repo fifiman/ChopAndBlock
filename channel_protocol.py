@@ -72,11 +72,11 @@ class ChannelProtocol(asynchat.async_chat):
 
             self.process_command(command, data)
         else:
-            command, dataLength = buffer_data.split(ChannelProtocol.COMMAND_SEPARATOR)
+            command, data_length = buffer_data.split(ChannelProtocol.COMMAND_SEPARATOR)
 
-            if dataLength: # Binary data follows current command.
+            if data_length:  # Binary data follows current command.
                 self.mid_command = command
-                self.set_terminator(int(dataLength))
+                self.set_terminator(int(data_length))
             else:
                 self.process_command(command)
 
@@ -96,11 +96,11 @@ class ChannelProtocol(asynchat.async_chat):
             command += ChannelProtocol.COMMAND_SEPARATOR
 
         if data is not None:
-            pickledData = pickle.dumps(data)
-            command += str(len(pickledData))
+            pickled_data = pickle.dumps(data)
+            command += str(len(pickled_data))
 
             logging.debug("Sending command with data: %s." % command)
-            self.push(command + ChannelProtocol.DEFAULT_TERMINATOR + pickledData)
+            self.push(command + ChannelProtocol.DEFAULT_TERMINATOR + pickled_data)
         else:
             logging.debug("Sending command: %s." % command)
             self.push(command + ChannelProtocol.DEFAULT_TERMINATOR)
@@ -116,7 +116,7 @@ class ChannelProtocol(asynchat.async_chat):
         Returns:
             None or NotImplementedError if command does not exist.
         """
-        commands = {"disconnect" : lambda x, y : self.handle_close()}
+        commands = {"disconnect": lambda x, y: self.handle_close()}
 
         if command in commands:
             commands[command](command, data)

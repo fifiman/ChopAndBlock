@@ -4,10 +4,10 @@ import logging
 
 
 class ServerChannel(ChannelProtocol):
-    def __init__(self, connection, map, parentServer):
+    def __init__(self, connection, map, parent_server):
 
         ChannelProtocol.__init__(self, connection, map)
-        self.parentServer = parentServer
+        self.parentServer = parent_server
 
         self.send_mapreduce_functions()
         self.start_new_task()
@@ -19,9 +19,9 @@ class ServerChannel(ChannelProtocol):
             self.send_command(command, data)
 
     def process_command(self, command, data=None):
-        commands = {"map_done" : self.map_done,
-                    "reduce_done" : self.reduce_done
-        }
+        commands = {"map_done": self.map_done,
+                    "reduce_done": self.reduce_done
+                    }
 
         if command in commands:
             commands[command](command, data)
@@ -44,7 +44,7 @@ class ServerChannel(ChannelProtocol):
         ]
 
         for command, function in commands_and_functions:
-            if function is not None: # Collect function does not have to exist.
+            if function is not None:  # Collect function does not have to exist.
                 self.send_function(command, function)
 
     def send_function(self, command, func):

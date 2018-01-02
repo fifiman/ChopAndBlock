@@ -28,21 +28,21 @@ class Client(ChannelProtocol):
         self.reduce_fn = None
         self.collect_fn = None
 
-    def connect_to_server(self, serverAddress, serverPort):
+    def connect_to_server(self, server_address, server_port):
         """
         Connect client to server at given address, and process commands while connection is active.
 
         Args:
-            serverAddress (str): Server address.
-            serverPort (int): Server port number.
+            server_address (str): Server address.
+            server_port (int): Server port number.
 
         Returns:
             None
         """
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connect((serverAddress, serverPort))
+        self.connect((server_address, server_port))
 
-        logging.info("Client connected to server at address %s:%s." % (serverAddress, serverPort))
+        logging.info("Client connected to server at address %s:%s." % (server_address, server_port))
 
         asyncore.loop()
 

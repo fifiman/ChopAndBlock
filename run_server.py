@@ -2,13 +2,14 @@ from server import Server
 import logging
 import sys
 
+
 def map(key, values):
     for word in values.split():
         yield (word, 1)
 
+
 def reduce(key, values):
     return sum(values)
-
 
 
 if __name__ == '__main__':
