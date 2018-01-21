@@ -10,7 +10,7 @@ class ChannelProtocol(asynchat.async_chat):
 
     Commands can contain pickled binary data after them. If data follows a command, a colon will separate the
     command and the length of the following pickled data. In this case, the channel terminator will be changed
-    from a newline to until this number of bytes have been read. After the data is read, the terminator will
+    from a newline to 'until this number of bytes have been read'. After the data is read, the terminator will
     return to it's default state.
 
     Attributes:
@@ -56,7 +56,8 @@ class ChannelProtocol(asynchat.async_chat):
             1. Either a new command has been received, which may be followed by it's binary data.
             2. Binary data for the previous command.
 
-        Returns: None
+        Returns:
+            None
         """
         buffer_data = ''.join(self.buffer)
         self.buffer[:] = []
@@ -114,7 +115,7 @@ class ChannelProtocol(asynchat.async_chat):
             data (None/str): Data to process with command, if exists.
 
         Returns:
-            None or NotImplementedError if command does not exist.
+            None or throws NotImplementedError if command does not exist.
         """
         commands = {"disconnect": lambda x, y: self.handle_close()}
 

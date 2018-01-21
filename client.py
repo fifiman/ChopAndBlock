@@ -51,7 +51,7 @@ class Client(ChannelProtocol):
         Process given command with according optional data.
 
         Client overrides this class from it's parent with more possible commands. In case client does not find
-        command, command is sent to be handled by parent class ChannelProtocol.
+        the command it is sent to be handled by parent class ChannelProtocol.
 
         Args:
             command (str): Command to process.
@@ -63,11 +63,11 @@ class Client(ChannelProtocol):
         logging.debug("Attempting to process command: %s." % command)
 
         commands = {
-            "set_map" : self.set_map,
-            "set_reduce" : self.set_reduce,
-            "set_collect" : self.set_collect,
-            "map" : self.map,
-            "reduce" : self.reduce
+            "set_map": self.set_map,
+            "set_reduce": self.set_reduce,
+            "set_collect": self.set_collect,
+            "map": self.map,
+            "reduce": self.reduce
         }
 
         if command in commands:
